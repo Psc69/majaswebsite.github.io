@@ -14,11 +14,19 @@ body {
 
 /* a box with text on the top */
 #topbar {
-   position: fixed;
+   /*position: fixed;*/
    background: var(--topbar-color);
    text-align: center;
    width: 100%;
 
+}
+
+.box1 {
+   width: 80%;
+   height: 80vh;
+   margin: 20px auto;
+   background: rgba(255, 255, 255, 0.5);
+   border: 2px solid rgba(0, 0, 0, 0.5);
 }
 
 .textshadow {
