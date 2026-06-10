@@ -3,22 +3,68 @@
    font-weight: 300;
 }
 
-:root {
-   --topbar-color: rgb(200, 200, 200)
-}
-
 body {
-   background: linear-gradient(to bottom, var(--topbar-color) 10%, rgb(238, 227, 187));
+   width: 100vw;
+   height: 100vh;
+   background: linear-gradient(to bottom, rgb(239,236,219) 50%, rgb(246, 226, 165));
    background-attachment: fixed;
+   z-index: -1;
+   position: absolute;
+   transition: 0.3s;
 }
 
-/* a box with text on the top */
 #topbar {
-   /*position: fixed;*/
-   background: var(--topbar-color);
    text-align: center;
    width: 100%;
+}
 
+#topbar-right {
+   float: right;
+   margin-right: 1vw;
+   margin-top: -20px;
+}
+
+#topbar-right label {
+   width: 100px;
+   height: 40px;
+   position: relative;
+   display: block;
+   background: #f2efde;
+   border-radius: 200px;
+   box-shadow: inset 0px 5px 15px rgba(0,0,0,0.4), inset 0px -5px 15px rgba(255,255,255,0.4);
+   cursor: pointer;
+}
+
+#topbar-right label:after {
+   content: "";
+   width: 30px;
+   height: 30px;
+   position: absolute;
+   top: 12.5%;
+   left: 10%;
+   background: linear-gradient(180deg,#ffcc89,#d8860b);
+   border-radius: 180px;
+   box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+}
+
+#topbar-right input {
+   width: 0;
+   height: 0;
+   visibility: hidden;
+}
+
+#topbar-right input:checked + label:after {
+   left: 10%;
+   transform: translateX(160%);
+   background: linear-gradient(180deg,#777,#3a3a3a);
+}
+
+#topbar-right label, label:after {
+   transition: 0.6s;
+}
+
+body:has(#darkmode-toggle:checked) {
+   background: #242424;
 }
 
 .box1 {
