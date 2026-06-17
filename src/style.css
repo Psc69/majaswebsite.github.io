@@ -67,6 +67,14 @@ body:has(#darkmode-toggle:checked) {
    background: #242424;
 }
 
+#three-container canvas {
+   width: 100vw !important;
+   height: 100vh !important;
+   position: absolute;
+   top: 0;
+   left: 0
+}
+
 .box1 {
    width: 80%;
    height: 80vh;
