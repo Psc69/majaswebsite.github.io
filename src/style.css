@@ -67,12 +67,27 @@ body:has(#darkmode-toggle:checked) {
    background: #242424;
 }
 
+#three-container {
+   width: 100%;
+   height: 100%;
+   position: relative;
+}
+
 #three-container canvas {
-   width: 100vw !important;
-   height: 100vh !important;
+   width: 100%;
+   height: 100%;
+   display: block;
+}
+
+#errorText {
    position: absolute;
-   top: 0;
-   left: 0
+   top: 12px;
+   left: 12px;
+   color: white;
+   font-family: sans-serif;
+   font-size: 14px;
+   pointer-events: none;
+   text-shadow: 0 0 4px rgba(0,0,0,0.8);
 }
 
 .box1 {
