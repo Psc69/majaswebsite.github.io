@@ -2,13 +2,20 @@ import * as THREE from 'https://unpkg.com/three@0.180.0/build/three.module.js?mo
 import { OrbitControls } from 'https://unpkg.com/three@0.180.0/examples/jsm/controls/OrbitControls.js?module';
 import { GLTFLoader } from 'https://unpkg.com/three@0.180.0/examples/jsm/loaders/GLTFLoader.js?module';
 
-const isAlphaTrue = false;
-const testcube = 'public/models/tests/cube.glb' //TODO: remove before commit!!
-const model = '';
+const sunflowerModel = '';
+const beeModel = '';
+const postcardModel = ''
+
+const isAlphaTrue = true;
+const debugText = true;
 
 function init() {
    const scene = new THREE.Scene();
    const container = document.getElementById('three-container');
+   if (!container) {
+      console.error('three-container not found');
+      return;
+   }
    const containerSize = container.getBoundingClientRect();
    const camera = new THREE.PerspectiveCamera(75, containerSize.width / containerSize.height, 0.1, 1000);
    const renderer = new THREE.WebGLRenderer({ 
@@ -21,53 +28,98 @@ function init() {
    let controls = new OrbitControls(camera, renderer.domElement);
    const loader = new GLTFLoader();
 
-   const objToRender = model || null;
+   function renderobj(modelPath) {
+      const objToRender = modelPath || null;
 
-   if (objToRender) {
-      loader.load(
-         objToRender,
-         function(gltf) {
-            object = gltf.scene;
-            scene.add(object);
-         },
-         function(xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-         },
-         function(error) {
-            console.error(error);
+         if (objToRender) {
+            loader.load(
+               objToRender,
+               function(gltf) {
+                  object = gltf.scene;
+                  scene.add(object);
+                  return object;
+               },
+               function(xhr) {
+                  console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+               },
+               function(error) {
+                  console.error(error);
+               }
+            );
+         } else {
+            const cube = new THREE.Mesh(
+               new THREE.BoxGeometry(1,1,1),
+               new THREE.MeshStandardMaterial({color: 0x00ff00})
+            );
+            scene.add(cube);
+
+            const errorText = document.createElement('div');
+            errorText.id = 'errorText';
+            errorText.textContent = 'No model found! - selecting test cube...';
+            container.appendChild(errorText);
+
+            return cube;
          }
-      );
-   } else {
-      const cube = new THREE.Mesh(
-         new THREE.BoxGeometry(1,1,1),
-         new THREE.MeshStandardMaterial({color: 0x00ff00})
-      );
-      scene.add(cube);
-
-      const errorText = document.createElement('div');
-      errorText.id = 'errorText';
-      errorText.textContent = 'No model found! \n - selecting test cube...';
-      container.appendChild(errorText);
    }
 
+   //objects & settings
+   let sunflowerRender = renderobj(sunflowerModel);
+
+   let beeRender = renderobj(beeModel);
+   beeRender.scale.set(0.5, 0.5, 0.5);
+   beeRender.position.set(0.75, 1.5, 0);
+
+   let postcardRender = renderobj(postcardModel);
+   postcardRender.scale.set(0.5, 0.5, 0.5);
+   postcardRender.position.set(0.5, -0.25, 0.75);
+   postcardRender.rotation.set(-0.5, 0.5, 0.25);
 
    //add renderer to DOM
    document.getElementById("three-container").appendChild(renderer.domElement);
 
-   camera.position.z = 5;
-   camera.position.y = 2;
-   
+   //camera settings
+   const cameraBaseY = 2;
+   camera.position.set(0, cameraBaseY, 5);
 
-   const topLight = new THREE.DirectionalLight(0xffffff, 1); // (color, intensity)
+   //controls settings
+   const target = new THREE.Vector3(0, 0, 0);
+   controls.target.copy(target);
+   controls.update();
+
+   controls.minDistance = 2;
+   controls.maxDistance = 10;
+
+   controls.maxPolarAngle = Math.PI / 2;
+   controls.minPolarAngle = 0.5;
+
+
+   //topLight
+   const topLight = new THREE.DirectionalLight(0xffffff, 0.75); // (color, intensity)
    topLight.position.set(10, 10, 10); //top-left~
    topLight.castShadow = true;
    scene.add(topLight);
 
-   const ambientLight = new THREE.AmbientLight(0x333333, objToRender == "sunflower" ? 1 : 0.001);
+   //bottom Light
+   const botLight = new THREE.DirectionalLight(0xffffff, 0.25);
+   botLight.position.set(-10,-10,-10);
+   botLight.castShadow = false;
+   scene.add(botLight);
+
+   //ambientLight
+   const ambientLight = new THREE.AmbientLight(0x333333, 1);
    scene.add(ambientLight);
 
-   function animate() {
+   function animate(time) {
       requestAnimationFrame(animate);
+      //------add stuff here------
+      if (beeRender) {
+         beeRender.position.x = Math.sin(time * 0.001) * 1.5;
+         beeRender.position.z = Math.cos(time * 0.001) * 1.5;
+         beeRender.rotation.y += 0.004305;
+      }
+
+      //--------------------------
+      controls.update();
       renderer.render(scene, camera);
    }
 
@@ -81,4 +133,4 @@ function init() {
    });
 }
 
-init();
+window.addEventListener('DOMContentLoaded', init);
