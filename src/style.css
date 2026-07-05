@@ -93,10 +93,6 @@ body:has(#darkmode-toggle:checked) {
       0 0 4px black;
 }
 
-#postcard {
-
-}
-
 .box1 {
    width: 80%;
    height: 80vh;

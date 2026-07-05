@@ -7,7 +7,6 @@ const beeModel = '';
 const postcardModel = ''
 
 const isAlphaTrue = true;
-const debugText = true;
 
 function init() {
    const scene = new THREE.Scene();
