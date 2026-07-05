@@ -27,8 +27,54 @@ function init() {
    let object;
    let controls = new OrbitControls(camera, renderer.domElement);
    const loader = new GLTFLoader();
+   const raycaster = new THREE.Raycaster();
+   const pointer = new THREE.Vector2();
+   const interactiveObjects = [];
+   let selectedObject = null;
 
-   function renderobj(modelPath) {
+   function registerInteractiveObject(objectToRegister) {
+      objectToRegister.traverse((child) => {
+         if (child.isMesh) {
+            interactiveObjects.push(child);
+         }
+      });
+   }
+
+   function handlePointerDown(event) {
+      if (event.pointerType === 'mouse' && event.button !== 0) {
+         return;
+      }
+
+      event.preventDefault();
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObjects(interactiveObjects, true);
+
+      if (intersects.length > 0) {
+         const hitObject = intersects[0].object;
+         selectedObject = hitObject;
+
+         const selectionLabel = hitObject.userData?.selectionLabel || hitObject.name || 'unknown';
+         if (selectionLabel === 'sunflower') {
+            console.log('Sunflower touched');
+
+         } else if (selectionLabel === 'bee') {
+            openBee();
+         } else if (selectionLabel === 'postcard') {
+            openPostcard();
+         } else {
+            console.log('Selected interactive mesh:', selectionLabel);
+         }
+      } else if (selectedObject) {
+         selectedObject = null;
+      }
+   }
+
+   function renderobj(modelPath, objectLabel = 'interactive-object') {
       const objToRender = modelPath || null;
 
          if (objToRender) {
@@ -36,6 +82,13 @@ function init() {
                objToRender,
                function(gltf) {
                   object = gltf.scene;
+                  object.traverse((child) => {
+                     if (child.isMesh) {
+                        child.name = objectLabel;
+                        child.userData.selectionLabel = objectLabel;
+                     }
+                  });
+                  registerInteractiveObject(object);
                   scene.add(object);
                   return object;
                },
@@ -51,7 +104,10 @@ function init() {
                new THREE.BoxGeometry(1,1,1),
                new THREE.MeshStandardMaterial({color: 0x00ff00})
             );
+            cube.name = objectLabel;
+            cube.userData.selectionLabel = objectLabel;
             scene.add(cube);
+            registerInteractiveObject(cube);
 
             const errorText = document.createElement('div');
             errorText.id = 'errorText';
@@ -63,19 +119,39 @@ function init() {
    }
 
    //objects & settings
-   let sunflowerRender = renderobj(sunflowerModel);
+   let sunflowerRender = renderobj(sunflowerModel, 'sunflower');
 
-   let beeRender = renderobj(beeModel);
+   let beeRender = renderobj(beeModel, 'bee');
    beeRender.scale.set(0.5, 0.5, 0.5);
    beeRender.position.set(0.75, 1.5, 0);
 
-   let postcardRender = renderobj(postcardModel);
+   function openBee() {
+      console.log('Bee function called');
+   }
+
+   let postcardRender = renderobj(postcardModel, 'postcard');
    postcardRender.scale.set(0.5, 0.5, 0.5);
    postcardRender.position.set(0.5, -0.25, 0.75);
    postcardRender.rotation.set(-0.5, 0.5, 0.25);
 
+   let isPostcardOpen = false;
+   function openPostcard() {
+      isPostcardOpen = !isPostcardOpen ? true : false;
+      if (isPostcardOpen) { open() } else { close() }
+      function open() {
+         console.log('Opening postcard...');
+         // create a div element for the postcard content
+         const postcardContent = document.createElement('div');
+      }
+      function close() {
+         console.log('Closing postcard...');
+      }
+   }
+
    //add renderer to DOM
    document.getElementById("three-container").appendChild(renderer.domElement);
+   renderer.domElement.style.touchAction = 'none';
+   renderer.domElement.addEventListener('pointerdown', handlePointerDown);
 
    //camera settings
    const cameraBaseY = 2;
@@ -91,7 +167,6 @@ function init() {
 
    controls.maxPolarAngle = Math.PI / 2;
    controls.minPolarAngle = 0.5;
-
 
    //topLight
    const topLight = new THREE.DirectionalLight(0xffffff, 0.75); // (color, intensity)
@@ -115,9 +190,9 @@ function init() {
       if (beeRender) {
          beeRender.position.x = Math.sin(time * 0.001) * 1.5;
          beeRender.position.z = Math.cos(time * 0.001) * 1.5;
-         beeRender.rotation.y += 0.004305;
+         beeRender.position.y = 1.5 + Math.sin(time * 0.0025)/4;
+         beeRender.rotation.y = -Math.atan2(beeRender.position.z, beeRender.position.x);
       }
-
       //--------------------------
       controls.update();
       renderer.render(scene, camera);
