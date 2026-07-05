@@ -180,7 +180,8 @@ function init() {
    scene.add(botLight);
 
    //ambientLight
-   const ambientLight = new THREE.AmbientLight(0x333333, 1);
+   const ambientLight = new THREE.AmbientLight(0x333333, 0.1);
+   ambientLight.position.set(0, -10, 0);
    scene.add(ambientLight);
 
    function animate(time) {
