@@ -28,6 +28,9 @@ function init() {
    let controls = new OrbitControls(camera, renderer.domElement);
    const loader = new GLTFLoader();
 
+   //add renderer to DOM
+   document.getElementById("three-container").appendChild(renderer.domElement);
+
    function renderobj(modelPath) {
       const objToRender = modelPath || null;
 
@@ -74,9 +77,6 @@ function init() {
    postcardRender.position.set(0.5, -0.25, 0.75);
    postcardRender.rotation.set(-0.5, 0.5, 0.25);
 
-   //add renderer to DOM
-   document.getElementById("three-container").appendChild(renderer.domElement);
-
    //camera settings
    const cameraBaseY = 2;
    camera.position.set(0, cameraBaseY, 5);
@@ -92,6 +92,8 @@ function init() {
    controls.maxPolarAngle = Math.PI / 2;
    controls.minPolarAngle = 0.5;
 
+   controls.enableDamping = true;
+   controls.dampingFactor = 0.05;
 
    //topLight
    const topLight = new THREE.DirectionalLight(0xffffff, 0.75); // (color, intensity)
@@ -106,7 +108,8 @@ function init() {
    scene.add(botLight);
 
    //ambientLight
-   const ambientLight = new THREE.AmbientLight(0x333333, 1);
+   const ambientLight = new THREE.AmbientLight(0x333333, 0.1);
+   ambientLight.position.set(0, -10, 0);
    scene.add(ambientLight);
 
    function animate(time) {
